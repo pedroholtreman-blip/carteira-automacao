@@ -3,10 +3,12 @@ name: Resumo diário da carteira
 on:
   schedule:
     # Cobre as 16:00 de Nova Iorque tanto no horário de verão (EDT, UTC-4)
-    # como no horário de inverno (EST, UTC-5). O script só envia de facto
-    # na execução que corresponder às 16:00 reais em Nova Iorque.
-    - cron: '5 20 * * 1-5'  # 16:05 EDT (verão nos EUA)
-    - cron: '5 21 * * 1-5'  # 16:05 EST (inverno nos EUA)
+    # como no horário de inverno (EST, UTC-5). Uso o minuto 37 (não perto
+    # do início da hora) porque o GitHub avisa que agendamentos a ":00"/":05"
+    # têm mais probabilidade de atraso ou falha, por serem os minutos com
+    # mais carga no sistema deles.
+    - cron: '37 20 * * 1-5'  # ~16:37 EDT (verão nos EUA)
+    - cron: '37 21 * * 1-5'  # ~16:37 EST (inverno nos EUA)
   workflow_dispatch: {} # permite correr manualmente para testar
 
 permissions:
