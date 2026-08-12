@@ -32,7 +32,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/summary.json
+          if [ -f docs/summary.json ]; then git add docs/summary.json; fi
           if [ -f docs/news.json ]; then git add docs/news.json; fi
-          git diff --staged --quiet || git commit -m "Atualiza resumo diário / notícias"
-          git push
+          if git diff --staged --quiet; then
+            echo "Nada de novo para publicar."
+          else
+            git commit -m "Atualiza resumo diário / notícias"
+            git push
+          fi
