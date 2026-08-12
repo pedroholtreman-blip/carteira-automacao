@@ -1,0 +1,38 @@
+name: Resumo diário da carteira
+
+on:
+  schedule:
+    # Cobre as 16:00 de Nova Iorque tanto no horário de verão (EDT, UTC-4)
+    # como no horário de inverno (EST, UTC-5). O script só envia de facto
+    # na execução que corresponder às 16:00 reais em Nova Iorque.
+    - cron: '5 20 * * 1-5'  # 16:05 EDT (verão nos EUA)
+    - cron: '5 21 * * 1-5'  # 16:05 EST (inverno nos EUA)
+  workflow_dispatch: {} # permite correr manualmente para testar
+
+permissions:
+  contents: write # necessário para o commit automático do docs/summary.json
+
+jobs:
+  send-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Enviar resumo do dia
+        env:
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          SHEET_GID: ${{ secrets.SHEET_GID }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: node daily-summary.mjs
+      - name: Publicar docs/summary.json e docs/news.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/summary.json
+          if [ -f docs/news.json ]; then git add docs/news.json; fi
+          git diff --staged --quiet || git commit -m "Atualiza resumo diário / notícias"
+          git push
