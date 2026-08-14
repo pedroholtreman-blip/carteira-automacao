@@ -263,12 +263,21 @@ async function sendEmail({ changeValue, changePct, totalToday, totalYesterday })
 import { writeFile, mkdir } from 'node:fs/promises';
 
 async function writeSummaryJson({ totalToday, changeValue, changePct }){
+  const fmtEur = (n) => Math.abs(n).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true });
+  const sign = changeValue >= 0 ? '+' : '-';
+
   const summary = {
     updatedAt: new Date().toISOString(),
     totalToday: Math.round(totalToday * 100) / 100,
     changeValue: Math.round(changeValue * 100) / 100,
     changePct: Math.round(changePct * 100) / 100,
-    currency: 'EUR'
+    currency: 'EUR',
+    // Versões já formatadas (com separador de milhares), prontas a usar
+    // diretamente no Atalho do Apple Watch — sem precisares de formatar
+    // nada lá.
+    totalTodayFormatted: `€${fmtEur(totalToday)}`,
+    changeValueFormatted: `${sign}€${fmtEur(changeValue)}`,
+    changePctFormatted: `${sign}${Math.abs(changePct).toFixed(2).replace('.', ',')}%`
   };
   await mkdir('docs', { recursive: true });
   await writeFile('docs/summary.json', JSON.stringify(summary, null, 2));
