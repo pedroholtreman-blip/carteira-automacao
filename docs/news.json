@@ -1,0 +1,70 @@
+{
+  "updatedAt": "2026-08-17T20:37:24.705Z",
+  "tickers": [
+    {
+      "ticker": "MA",
+      "headlines": [
+        {
+          "title": "MA Stock Quote Price and Forecast - CNN",
+          "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE12aFA2VU9QNG5XUUl5ZUI1U0JTeDg3d0FITnFPRmhia2xlMjFYLUthQXlvdTFUMVB2c19yM3BoYTIyWVNna29Hb25zWUd6QQ?oc=5"
+        },
+        {
+          "title": "Mastercard (MA) Appoints Yasemin Bedir To Lead Its EEMEA Region - simplywall.st",
+          "link": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPb1VmTTBwaE5ybkJoV0RSaFFTdkNwbWlUZkhPTDVCbEJfQ3Bkd0E2QUQ4QmMtYmV2cDQxUjk3U3hBMzd0N09hVGlWQTBGd3AtclRSXzZveDVwUV9kYWV1Rlh2dEtIY3lZa25iWVhaSDdFSEFIc24tVWYtSDBkalNyV3dnN0ozQ3JpVzJDcFpNN0NGeFlIUW4wMS16dzdJYmdOMFpLTURZRENldGlzQjVLN0lueHNzZ0xTRm9FdThCZ2VZcjByQW1TNjhzbWlGNDBzSVo1ajJn0gHbAUFVX3lxTE5nVnltNW5KUDFYdUlOSkllTmlxSE1oNDJjUklyWUtJcDBpdkVKR1NKRmhwY1ZUcmxuY0d5blcyc0pyaDlvOTJ2TTUzallpR1JZWXdMV0t3V01TTS1JN0hidkNiVE5lR3JXR1BjX2pOT0dxa1NNcmE0MlIySUNNM1R1SXBNUVpSb3RNM0diMDcxSFRIZl96c2t6TEUxSW9UaDVlYWpNTGUzWHlXMDdZanlHbWt3OURVdnRUT1p0OXdneWtzeU9DZUlFeHJwR3l2NnE5VG5JN2lGazhqaw?oc=5"
+        }
+      ]
+    },
+    {
+      "ticker": "GOOG",
+      "headlines": [
+        {
+          "title": "Berkshire Is Chasing GOOG Stock Big Time, But It Might Not Help Reverse Warren Buffett’s Historical Mistake - Barchart.com",
+          "link": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxQYlV5ZE5rc1ZHNndmWlA2UGd0cUhPSlJpVUU3NWw2VjVMblVyMDlTZXd1X0s4VTNYaUVfTGZQbXFMcDFHN3FuNHBlbFhUd3RhdWdVSDBwdUEwOGJfVm5xQ1Q3Q1RhMFpPSFZzZm5PcUs2N01rdExhM3pGU1p5a2VnZUR0UjNJX2g2eHRPb1lSd0c2aWVxTUxySzZ3SWhTMVZoQjFJNHRIOXVpVTRqRmV3bHctMVVReTlIcXlqUHdjTVZ3YktEZFY2OGVfaElnaHR5bEJfRndla1l5OW1ibHBKOF9JVQ?oc=5"
+        },
+        {
+          "title": "Key facts: GOOG $811B off‑balance; Stock −10%; Berkshire +48.1M - TradingView",
+          "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPa1BrclpYcnlxeFNnVk5BUVBLbFNzNHd6LW84TlVjdUV0RlZVakFpUVRLbk93S1NENHlpM1NmWnJBbTNua2R3X0Fqb2VCZ0lzZ1hNNXRHQy1BYmtBclVHWUczVlhGVlBqYlJOR3FlNC1YdGNEZ2VXd2JPMGgyamtHM2dBSWp2S0xMaklXNjhkbGlzSERHeGFkUEhUTjlGUzBnMFU2RldkOEZkd0hUb0xaa2NGNGsyWS0xYWc?oc=5"
+        }
+      ]
+    },
+    {
+      "ticker": "MSFT",
+      "headlines": [
+        {
+          "title": "Microsoft Faces 2.2 Million Chip Gap; Microsoft Stock (NASDAQ:MSFT) Slides - TipRanks",
+          "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOQjh3T2lUNC1EWUItVzlLSG1fcm45dGJqWVpNZ29tVU1Id1Jia0hJNUpjZWhtUTNEWTB5WnFpTWRHUzhCejJpSlFfM25PaVU2MEVBbk8xQ1M2RmxsQXpYWTRiQXVTejhCZENsdWFjLV82TTBwWXJWMFJyM2RUb2VXemtOLVBQQmtqVGZGMTE2eDVsU1BhZEVZZ3o5R3doaC0zNmc?oc=5"
+        },
+        {
+          "title": "Should You Buy Microsoft Stock Now or Wait for a Dip? - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQZloxOFRVMnBnQVBWUVJNcHJtbzVXSEJYaFJ4Q0FvR3lYTnZkZFZDTTlmR1BOMUMxUHRpdHpvMk1WWm53eXlnbnMzYUhYaVR4SVpDb0pXRlhKTXUxbGViLWtMVU5VNEFELVFSb21xV19fVGFZM1U2S1AyWlYxWVNvbV9Qam5CRTJ1aEJ5dTdGWG5tTF9CNV9mWg?oc=5"
+        }
+      ]
+    },
+    {
+      "ticker": "V",
+      "headlines": [
+        {
+          "title": "V Stock Quote Price and Forecast - CNN",
+          "link": "https://news.google.com/rss/articles/CBMiTEFVX3lxTFBSZ2hnMDBRcHY1UXBpRkxCS3g0bUlzSzZ5QUV2Z1JaY1RDQUdIc2E1UFdkYk00M2hJakVMUkVpaEdVQUZSd1djUzNlUDE?oc=5"
+        },
+        {
+          "title": "ChatGPT and Billionaire Bill Ackman Agree on Visa (V) - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOcEE2cjBEQjZEWXI4WHEtV0lxVkFNZ2JlY3Roa0ZBOFpsWHMwTFdYR3JUUkJOemFEVVhMTktzVVdKXzh2YzZBQ25jNFY3TTZCWWozR2J2ZVFZMzlqclBMTWcwejlTQVJPamhNc1FOWVdYdzRFVy03RGIxM0k0dlBvby1QNjdfbkJmZml2Z0t5WnBjc3RNeU9JTkVnUDJsaUlsS2hZSQ?oc=5"
+        }
+      ]
+    },
+    {
+      "ticker": "AMZN",
+      "headlines": [
+        {
+          "title": "Amazon Stock Prepares for Bull Run as Morgan Stanley Details “AWS’s Path to $1 Trln of Revenue” - TipRanks",
+          "link": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPc1JlRVR5UUVJVTNDVG0yRHV1V0ZNaFpPc1Bpdi1tS2VGem5IY1M4dVBJbTFMSnFZeXUzdjdyMHlWWi1PbFNCVWRCOVBWUF9TbVpjWmJITlpWSi12cFNvZG96UmhsckZ3bVVIcXJ0T2kwYWRWUFozcHEwMHh4UWd6azlidFdPYnh6YUp0NGQ0V2xEUjVGdjN4QlVzS3NjMHpVRjBnbS1nd3lDc0hfMFp1cm5XRC1yVTA3S0pib1FB?oc=5"
+        },
+        {
+          "title": "Stanley Druckenmiller loaded up on Amazon and chip stocks before July rout - cnbc.com",
+          "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNRDlSZnlyczVwT1BoOWxsUWI3OV9hd0dkaXY1c2JwblFOTHBUeW5fT2JacS1iOUxja0ktSlZrZ2VyT0MwbDlCTnA3ckt6N1Z0d1NvMlhSZzVKdVZKSS0wNmVocGJwVUdZbVF4eGRtdzZ5VmpFTjVMN3MyUncwWG93QmEwYmRCblpyWk5SeFA3dHkxTW9UVjVwNVhHTm93Q2p3akNLM3l3?oc=5"
+        }
+      ]
+    }
+  ]
+}
