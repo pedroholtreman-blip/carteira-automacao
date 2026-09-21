@@ -1,16 +1,16 @@
 {
-  "updatedAt": "2026-09-14T20:37:26.756Z",
+  "updatedAt": "2026-09-21T20:37:19.502Z",
   "tickers": [
     {
       "ticker": "MA",
       "headlines": [
         {
-          "title": "Mastercard will let KEO Capital issue its cards through a five-year cross-border program - Stock Titan",
-          "link": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQb0NtbFB5bkZjVUtGQWFtbEF5TzkwOUUzczZKZWV0Vnd0MkNXNzMzeV85Y3I4XzhYdzNrOUlwWHFRUXFJY3JvX3FiY0JrUVBNaXdSaFBEcnNmcGhZYi1DNGs5c0V2NFBRVDE4bXZUX2dleDhHXzd4ZkFZVTRMbUM2X29HTEFNRXN3Q0U1WjZqVFdVMzhVTDdRTU4xM2dEVG9RejVwbGhic1ppSUg4c1lUYThYZWtaUQ?oc=5"
-        },
-        {
           "title": "Mastercard Stock Price Forecast. Should You Buy MA? - StockInvest.us",
           "link": "https://news.google.com/rss/articles/CBMiRkFVX3lxTFBMMlF5ZkNHOENUbFlPOEJNdF9rWnRhbjhKRjN0d2dDMUNnY1Uwd2ItcWtHS2gzUm5na2N6NHVlNXNMbHliU0E?oc=5"
+        },
+        {
+          "title": "Mastercard (MA) Stock Gets Fair Value Bump After Q2 Driven Analyst Target Increases - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOcDlmMV9renRrMGZob1E1ZmxHbDU2WWZ0RlpVQ0VCdS11Z3FXWFlQRFFPaE8wdnVQZ2xDUTlFNTVjeGhRYXA2NHVJWnlHcjVaWTk3RXZ2RDM0NGU3XzVJTTZYV2dxaFBBNnp2UEpPekJPaXNqaS1RR2pHMG93SERvX1JMU2kyTC1JMWxFUjhneXlCcTFkS3FrVXZ3?oc=5"
         }
       ]
     },
@@ -18,12 +18,12 @@
       "ticker": "GOOG",
       "headlines": [
         {
-          "title": "Why Google and Meta Stocks Are the Big Winners From the Latest AI Concerns - Barron's",
-          "link": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5RR3JsN0djU2JiMVZvbVduTm1wTk1KVGlUZHFvTVU5aEd3c1FqclFQUTI2eXloa1F1VVFJU3R6Q3R6NmFtQzhFMVBROFJ5TERITUFzeU1LV3Z1aGpWV1R0dUktd0EwSUV2WS1nZmRPTXFMUFZ4aE13bEtWUQ?oc=5"
+          "title": "Alphabet Stock Surges as Google Search Makes a Major Comeback - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOaDFydG15ZFFtSFFQWFAwMlVZeHYtOXpQcE5vclI1QURVcHFLVW5VdHBrNlFQZFBnMXdtaE5TWmMzaGRYQXRsUHVlMDdKakFMVUMyV2d4WVVFcG03X3lpX2w3WGx6bUpHYzhjTldhb3hwQmw3ZHZqclNzRGVMYWJYSGJybDlEYlJRam9ZODN1SGJkYnNjNHFEY0IwSmZHdHJPN2c?oc=5"
         },
         {
-          "title": "One Mag 7 Stock to Watch in the Second Half of 2026 For Solid Gains - Yahoo Finance",
-          "link": "https://news.google.com/rss/articles/CBMijwFBVV95cUxOVjFBSThuQUkza0xRNnhzU3dVWjg1LU50MHMtVlFSQldRbWFwdURuTndzd1dwRzZGaW4zY2s0TDVQSVNnNjRYTkFlSmJNUUtXRjBwLXBNNlBmOG9VQjdLRERUTFZuZnJvemVUVTFfSHhUdzVTUEhUd2Q4S0d2R19BajZMa05KYkpQVjJXTWV5bw?oc=5"
+          "title": "What's Going On With Alphabet Stock Today? - Benzinga",
+          "link": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOQXBRSy13RHRDcWFtZUxOdk5fOWtUdl9PY3NpaTRRaHotUXR4dkJ1ODdIX2E0eW82b3hYbFFidFdqR2tpVGdlYVB4RzVQbEoza2dwWjVTQ1huMnJOZVR3ZGUxaWJBYndLMVU1d0VlSzV5c1ZZR3BTVl9BZWhYWEpfV1FObUplWDJkSmhGbmJSX2VQcGRXTGJORDRWUmI0YnR1a3NIUkF3?oc=5"
         }
       ]
     },
@@ -31,12 +31,12 @@
       "ticker": "MSFT",
       "headlines": [
         {
-          "title": "Microsoft Stock (MSFT) Opinions on Bank of America Price Target Upgrade - Quiver Quantitative",
-          "link": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOWGtXNnZKamhtd0YxSG5lYzVNbDFMVXRuYjJ4TUlFU2w3emstYWtZRTVRQjA4QlJydmhHaEM3dzhudHcyUWIwSHVKTU9nMWZJTDZRMkZ5eHV4UUYtNW1fYWk2Mzd4MXFfQTVIbHllMXBwVTBkcXBJRTNCOURNdjJmQjBaRHloSzU2VWtFdGFNX1VrVWw2T25KbDFvdlo1bXlFZlRsNTF4UlUzem5Y?oc=5"
+          "title": "Microsoft Stock (NASDAQ:MSFT) Notches Up Despite Concerns About ChatGPT and Women at Work - TipRanks",
+          "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxOcHluX0Jwc05GNFlYN1NpYW1Xbm91bG00WkRORjRXLS1XbXlLcm5tM0NvaUl6LWlmcHZMNG91OXFmZTF2Mzk4c3l2SDVmT1VHb2xQbUdOX1FYZVpOZWtUOVFReFd2WFQ1SzlaQW5nYXNDa2FYNmxzNW5UVjFidy1fY29xUDZjOWhIREowdllQWXZNY2VraWpIX0hFeTlDTjFaaHYyOHhSV0Fvcy1XWlNDN1AtUlVmX1U?oc=5"
         },
         {
-          "title": "Can MSFT Stock Rally on the Back of Dynamics 365 Business Applications? - Yahoo Finance",
-          "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOYzlCTE5JMnZiZG5kS3FTS3VZQlFRdHVTWFRpRFVZUUNidnZRelJtVlpETC0zcmhaQ2w1X29uUlhMRUE4T3dYUHpfRmYyWnhRSjZ1TUFRajlJMlB3NDB3dC1sQ3B0OGpvakhlbVFzOW1LR01zMUxKNURFMzJPQlN4b3VxMEhocnB4NHVoZ3U4eHdRRGlpTTdFZjVqQQ?oc=5"
+          "title": "MSFT Stock: Redburn Raises Target To $440 As AI Safety, Spending Debate Continues - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMingFBVV95cUxQd2xfdHBUNEdXNDVVNnI1bmxTck5GSkt3eUJ5c0IzMVc1NzJnTWRucVFfeWQ3VVE3VzFMellhVzRrTkplNzF2OHhwR2RxaElGd05DbjN4ZkE0cTR2QnQyTTBVZmFOb194TC0wSnhWdVJWUTE4TmhNSnVUS18xM0NwWjM4MGF6SWdBVlpLTURMMU8tdlhIc3lIZU9sQk5SUQ?oc=5"
         }
       ]
     },
@@ -44,12 +44,12 @@
       "ticker": "V",
       "headlines": [
         {
-          "title": "Visa Stock Offers Growth, but is it Worth Buying at 24.9X Forward P/E? - Yahoo Finance",
-          "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNUmdsMDhQeW1SaDE0SXRZRFFXbGVLMTdpMDVqX1hra28xVEw1UmZsOHBDcWxWMG4wN0xpclViRWJyR0lueC1zMXpyUkpndzJueEIxY2VBd1lmamM3Q2tVWU0yaXhkaUNEbnBUQ0phSktaeDZ5UVU3bmpfbXhSWkdsbnFhNzFscXNXdlRWTlR1NkhtcnJySThhamJUVQ?oc=5"
+          "title": "Visa Inc. (V) is Attracting Investor Attention: Here is What You Should Know - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQU3ZtdjlCdHBwMWNMZDdiSnp2eGdRaUhZdUsxYkFFOVVKZmY1SGFDMm1UTVZDT2JyYXJIeEY5ODVubklGaTNMUGQ5RjN5NHNZU2U2ZU9FY2gzdnlCSzB4NnNOQWN5dFNUdGxkZk5sTDVMTzF3bVZBa3pmREgyMTVpak1lQ0lKdnBDNGEzNXh2a1ZYdVBTNWE0bzNfcw?oc=5"
         },
         {
-          "title": "Visa Inc (V) Stock Price, Quote, News & History - Benzinga",
-          "link": "https://news.google.com/rss/articles/CBMiR0FVX3lxTE5rQlJtQmp1RkZ6ejh3YlctN01HWkdsaVdFSjNkTi1nckthYjVURzlKOXpFUXJtT004NHBEV3dwbTlVU3FkZnFR?oc=5"
+          "title": "Better Artificial Intelligence Stock: Arm Holdings vs. ASML - The Motley Fool",
+          "link": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNZzRsUzFkTUFESXpLQUF2dWVNeG9NU19OdkJneDlLd0hwMk9oTDhPZmhNT1RycFVBRGRwY21MNnExQnhFdUQ0aDhfZi15VUN3TVlnQzNZMWxmRndLTWowOGlqeWxWZmJVNmdMamxjZVk0ZmphRWFra0Y5cVZBdWhXVzAtdHV5dmxDNjBUQ3V0NFZfM25SM19udGhaLTU0ZHVXUVQ1UU5JVTBpSER2MmZB?oc=5"
         }
       ]
     },
@@ -57,12 +57,12 @@
       "ticker": "AMZN",
       "headlines": [
         {
-          "title": "Amazon's Operating Cash Flow Could Push AMZN Over $314 - What's the Best AMZN Play? - Yahoo Finance",
-          "link": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNQ3NWSUt1T1FuaUEwT3JGLWdicVFTeTk5UFlpTHZELW5XVy14VVFCdUxSRzVGVGRBSUJqQnVLTHNYbVlpeGpjQTNaOGhNNGh5OHI4RVZsLW8tZlBxbExQR3ZKUS1wQnMtek1KVkg4SzE3anJON2U5a0RhcnAwV192QXJBU19raXduNFJOQkdxa2VhTXZFdnB6RlJWellMUGJq?oc=5"
+          "title": "Prediction: Here's What a $5,000 Investment in Amazon (AMZN) Stock Could Be Worth by 2036. - Yahoo Finance",
+          "link": "https://news.google.com/rss/articles/CBMinwFBVV95cUxOelhBajk0V29iZmxkWVhLN0xwMlFfU29QOHZobnYxeGY0ZWFyUkNFT2VNbzM5Z2h2cF92SzNlSU5TOWd1VU1EaE5KdzRnUlI4VWRiVV9FOWpGMTc3TkVfaHZBZEMydmRHRFZrbGZyNFpUUDlkUWJ2OUxYLWI4S2lMQXBqYWxFNWdsY29KNmQ2Rm5GZ083clBHaHZJdU5nckk?oc=5"
         },
         {
-          "title": "Amazon and 2 Other AI Stocks to Buy With $5,000 - The Motley Fool",
-          "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPa2ZleFRCWjBla044cHAzNVYzb0tKODB5QzNJMDNrb2dNWE5DRU90dG84NmFwakJXdFBBb1I0d2lsVWNGTnhmQWU2V3l4dmNFS1ZhMy1TZlU1OXgxdGYwaHphdzFtcWx0TUxaLUVVMVdsQ0R1QXQ0TEt4SUFwY2JXYi1lQUwzX3p5RHpRTk1QZXpIdUwzUWRn?oc=5"
+          "title": "How to Play AMZN Stock as Amazon Unveils Project Mercury - Barchart.com",
+          "link": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOVV95QmxwSnhxOEluLVROWTVjQkZfSDdDSGUtTF9FdkFqVUQ0eURjNURSYmY4cEFIbmdubzNJTWFfV3VXQ01DSnIyeENiZ19fMmNHZTIwQ1BWNnV1VmNXa0xvZDZpVHdjVVR5T05MRUNWRFo5enNqdWY5WTE0VmRpaEppYi1OSF8wdFlaRUpyTHhsQ0lWUWwwWHVnRjVGUlRBb0E?oc=5"
         }
       ]
     }
