@@ -24,21 +24,24 @@ jobs:
           node-version: 22
       - name: Enviar resumo do dia
         env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
           SHEET_GID: ${{ secrets.SHEET_GID }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
         run: node daily-summary.mjs
-      - name: Publicar docs/summary.json e docs/news.json
+      - name: Publicar docs/summary.json, docs/news.json e docs/report.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -f docs/summary.json ]; then git add docs/summary.json; fi
           if [ -f docs/news.json ]; then git add docs/news.json; fi
+          if [ -f docs/report.json ]; then git add docs/report.json; fi
           if git diff --staged --quiet; then
             echo "Nada de novo para publicar."
           else
-            git commit -m "Atualiza resumo diário / notícias"
+            git commit -m "Atualiza resumo diário / notícias / relatório"
             git push
           fi
