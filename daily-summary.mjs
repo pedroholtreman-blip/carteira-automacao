@@ -1,14 +1,21 @@
-// Envia um email com o resumo do dia (variação total em valor e %) ao
-// fecho do mercado americano. Pensado para correr via GitHub Actions
-// (agendado), não precisa de nenhum browser aberto.
+// Resumo diário da carteira — versão Supabase (Fase 4).
+// Corre via GitHub Actions (disparado pelo cron-job.org aos dias úteis, ao
+// fecho do mercado americano). O que faz:
+//   1. lê as posições abertas da base de dados (Supabase);
+//   2. lê as cotações do dia da folha GOOGLEFINANCE (só TICKER + CURRENT/PREVIOUS PRICE);
+//   3. grava as cotações do dia em price_snapshots (histórico diário) e o câmbio em fx_rates;
+//   4. calcula a variação do dia, movimentos ≥5% e (às segundas) notícias;
+//   5. grava tudo em app_settings (summary_json, report_json, news_json) + news_items,
+//      escreve docs/*.json (para o Apple Watch) e envia o email via Resend.
 //
-// Variáveis de ambiente necessárias (definidas como GitHub Secrets):
-//   SHEET_ID        - ID da Google Sheet (a parte entre /d/ e /edit na URL)
-//   SHEET_GID       - GID da aba "Dashboard"
-//   RESEND_API_KEY  - chave da API da Resend (resend.com, grátis)
-//   EMAIL_TO        - o teu email
-//   EMAIL_FROM      - remetente (ver README para como configurar)
+// Variáveis de ambiente (GitHub Secrets):
+//   SUPABASE_URL               - https://xxxx.supabase.co
+//   SUPABASE_SERVICE_ROLE_KEY  - service role key (só aqui, nunca na app)
+//   SHEET_ID / SHEET_GID       - folha com as cotações (GOOGLEFINANCE)
+//   RESEND_API_KEY, EMAIL_TO, EMAIL_FROM
 
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SHEET_ID = process.env.SHEET_ID;
 const SHEET_GID = process.env.SHEET_GID;
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -23,10 +30,35 @@ function requireEnv(name, value){
     process.exit(1);
   }
 }
-requireEnv('SHEET_ID', SHEET_ID);
-requireEnv('SHEET_GID', SHEET_GID);
+requireEnv('SUPABASE_URL', SUPABASE_URL);
+requireEnv('SUPABASE_SERVICE_ROLE_KEY', SERVICE_KEY);
 requireEnv('RESEND_API_KEY', RESEND_API_KEY);
 requireEnv('EMAIL_TO', EMAIL_TO);
+
+// --- 0. Supabase via PostgREST (sem dependências) ---
+async function sb(method, path, body, extraHeaders = {}){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json', ...extraHeaders },
+    body: body === undefined ? undefined : JSON.stringify(body)
+  });
+  const text = await res.text();
+  if(!res.ok) throw new Error(`Supabase ${method} ${path} → HTTP ${res.status}: ${text}`);
+  return text ? JSON.parse(text) : null;
+}
+async function sbAll(path){
+  const PAGE = 1000; let from = 0, out = [];
+  for(let i = 0; i < 200; i++){
+    const sep = path.includes('?') ? '&' : '?';
+    const data = await sb('GET', `${path}${sep}offset=${from}&limit=${PAGE}`);
+    out = out.concat(data || []);
+    if(!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+  return out;
+}
+const upsert = (table, rows, onConflict) => rows.length ? sb('POST', `${table}?on_conflict=${encodeURIComponent(onConflict)}`, rows, { Prefer: 'resolution=merge-duplicates,return=minimal' }) : null;
+const todayIso = new Date().toISOString().slice(0, 10);
 
 // --- 1. Só corre perto das 16:00 (hora de Nova Iorque) e em dias úteis ---
 // O workflow é agendado duas vezes (para cobrir horário de verão/inverno
@@ -79,6 +111,7 @@ function num(v){
 }
 
 async function fetchSheet(){
+  if(!SHEET_ID || !SHEET_GID) throw new Error('SHEET_ID/SHEET_GID não definidos.');
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${SHEET_GID}&headers=1&tqx=out:json`;
   const res = await fetch(url);
   if(!res.ok) throw new Error(`Falha ao ler a Google Sheet (HTTP ${res.status}). Confirma o SHEET_ID/SHEET_GID e a partilha "Qualquer pessoa com o link".`);
@@ -98,55 +131,95 @@ async function fetchUsdEurRate(){
   return rate;
 }
 
-// --- 3. Calcula a variação do dia (mesma lógica do dashboard) ---
-async function computeDailyChange(){
-  const rows = await fetchSheet();
-  if(rows.length < 2) throw new Error('A aba Dashboard está vazia.');
-
-  const norm = (s) => (s || '').replace(/\s+/g, '').toUpperCase();
-  const header = rows[0].map(norm);
-  const idx = {
-    ticker: header.indexOf('TICKER'),
-    units: header.indexOf('UNITS'),
-    status: header.indexOf('STATUS'),
-    coin: header.indexOf('COIN'),
-    currentO: header.indexOf('CURRENTPRICE(O)'),
-    previousO: header.indexOf('PREVIOUSPRICE(O)')
-  };
-  if(idx.ticker === -1 || idx.units === -1 || idx.status === -1 || idx.currentO === -1 || idx.previousO === -1){
-    throw new Error('Não encontrei as colunas TICKER, UNITS, STATUS, CURRENT PRICE (O) ou PREVIOUS PRICE (O) na aba Dashboard.');
+// --- 3. Posições da base de dados + cotações do dia; grava o histórico ---
+async function fetchPriceFeed(){
+  // Map ticker -> { current, previous } a partir da folha GOOGLEFINANCE
+  const out = new Map();
+  try{
+    const rows = await fetchSheet();
+    const norm = (x) => (x || '').toString().replace(/\s+/g, '').toUpperCase();
+    const header = rows[0].map(norm);
+    const iT = header.indexOf('TICKER'), iC = header.indexOf('CURRENTPRICE(O)'), iP = header.indexOf('PREVIOUSPRICE(O)'), iS = header.indexOf('STATUS');
+    if(iT === -1 || iC === -1) throw new Error('colunas TICKER / CURRENT PRICE (O) em falta');
+    rows.slice(1).forEach(r => {
+      const t = String(r[iT] || '').trim().toUpperCase();
+      if(!t || out.has(t)) return;
+      if(iS > -1 && String(r[iS] || '').trim().toLowerCase() !== 'open') return;
+      const cur = num(r[iC]), prev = iP > -1 ? num(r[iP]) : NaN;
+      if(isNaN(cur) || cur <= 0) return;
+      out.set(t, { current: cur, previous: isNaN(prev) ? null : prev });
+    });
+    console.log(`Cotações lidas da folha: ${out.size} tickers.`);
+  }catch(e){
+    console.warn(`Folha de cotações indisponível (${e.message}) — uso os últimos preços guardados na base de dados.`);
   }
+  return out;
+}
 
-  const usdEurRate = await fetchUsdEurRate();
+async function computeDailyChange(){
+  const [positions, feed, usdEurRate] = await Promise.all([
+    sbAll('transactions?select=ticker,units,currency,status&status=eq.open'),
+    fetchPriceFeed(),
+    fetchUsdEurRate()
+  ]);
+  if(positions.length === 0) throw new Error('Não há posições abertas na base de dados.');
+
+  // Últimos dois snapshots por ticker (para "ontem" e como recurso quando a folha falha)
+  const tickers = [...new Set(positions.map(p => p.ticker.toUpperCase()))];
+  const snaps = await sbAll(`price_snapshots?select=ticker,price_date,price&ticker=in.(${tickers.map(t => `"${t}"`).join(',')})&order=price_date.asc`);
+  const hist = new Map();
+  snaps.forEach(s => { const t = s.ticker.toUpperCase(); if(!hist.has(t)) hist.set(t, []); hist.get(t).push({ d: s.price_date, p: Number(s.price) }); });
+
+  const priceOf = (t) => {
+    const h = hist.get(t) || [];
+    const before = h.filter(x => x.d < todayIso);
+    const lv = feed.get(t);
+    const current = lv ? lv.current : (h.length ? h[h.length - 1].p : NaN);
+    const previous = lv && lv.previous !== null ? lv.previous : (before.length ? before[before.length - 1].p : NaN);
+    return { current, previous };
+  };
+
+  // Guarda as cotações do dia (uma por ticker) e o câmbio
+  const currencyOf = new Map(); positions.forEach(p => currencyOf.set(p.ticker.toUpperCase(), (p.currency || 'EUR').toUpperCase()));
+  const snapRows = tickers.filter(t => feed.has(t)).map(t => ({ ticker: t, price_date: todayIso, price: feed.get(t).current, currency: currencyOf.get(t) || 'EUR', source: 'feed' }));
+  await upsert('price_snapshots', snapRows, 'ticker,price_date');
+  await upsert('fx_rates', [{ rate_date: todayIso, base: 'USD', quote: 'EUR', rate: +usdEurRate.toFixed(6) }], 'rate_date,base,quote');
+  console.log(`price_snapshots: ${snapRows.length} cotações gravadas para ${todayIso}.`);
+
+  const BIG_MOVE_THRESHOLD_PCT = 5; // variação diária (%) a partir da qual um ticker é sinalizado — limiar arbitrário, sem juízo de valor
 
   let totalToday = 0, totalYesterday = 0;
-  const valueByTicker = new Map(); // ticker -> valor atual (€), para saber as maiores posições
-  rows.slice(1).forEach(r => {
-    if(!r[idx.ticker] || !r[idx.ticker].trim()) return;
-    if((r[idx.status] || '').trim().toLowerCase() !== 'open') return;
-    const qty = num(r[idx.units]);
-    const current = num(r[idx.currentO]);
-    const previous = num(r[idx.previousO]);
+  const valueByTicker = new Map();
+  const tickerMoves = new Map();
+  positions.forEach(p => {
+    const ticker = p.ticker.toUpperCase();
+    const qty = Number(p.units);
+    const { current, previous } = priceOf(ticker);
     if(isNaN(qty) || isNaN(current) || isNaN(previous)) return;
-    const currency = (r[idx.coin] || 'EUR').trim().toUpperCase();
-    const fx = currency === 'USD' ? usdEurRate : 1;
+    const fx = currencyOf.get(ticker) === 'USD' ? usdEurRate : 1;
     const valueEur = qty * current * fx;
+    const valueYesterdayEur = qty * previous * fx;
     totalToday += valueEur;
-    totalYesterday += qty * previous * fx;
-
-    const ticker = r[idx.ticker].trim();
+    totalYesterday += valueYesterdayEur;
     valueByTicker.set(ticker, (valueByTicker.get(ticker) || 0) + valueEur);
+    if(!tickerMoves.has(ticker)) tickerMoves.set(ticker, { valueToday: 0, valueYesterday: 0 });
+    const tm = tickerMoves.get(ticker);
+    tm.valueToday += valueEur;
+    tm.valueYesterday += valueYesterdayEur;
   });
 
   const changeValue = totalToday - totalYesterday;
   const changePct = totalYesterday !== 0 ? (changeValue / totalYesterday) * 100 : 0;
 
-  const topTickers = [...valueByTicker.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, NEWS_TICKER_COUNT)
-    .map(([ticker]) => ticker);
+  const topTickers = [...valueByTicker.entries()].sort((a, b) => b[1] - a[1]).slice(0, NEWS_TICKER_COUNT).map(([ticker]) => ticker);
 
-  return { totalToday, totalYesterday, changeValue, changePct, topTickers };
+  // Movimentos de preço fora do normal — puramente factual (só a variação % de cada ticker).
+  const bigMoves = [...tickerMoves.entries()]
+    .map(([ticker, v]) => ({ ticker, changePct: Math.round((v.valueYesterday !== 0 ? ((v.valueToday - v.valueYesterday) / v.valueYesterday) * 100 : 0) * 100) / 100 }))
+    .filter(m => Math.abs(m.changePct) >= BIG_MOVE_THRESHOLD_PCT)
+    .sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct));
+
+  return { totalToday, totalYesterday, changeValue, changePct, topTickers, bigMoves };
 }
 
 // --- 4. Constrói um pequeno gráfico (via QuickChart, grátis, sem chave) ---
@@ -281,7 +354,8 @@ async function writeSummaryJson({ totalToday, changeValue, changePct }){
   };
   await mkdir('docs', { recursive: true });
   await writeFile('docs/summary.json', JSON.stringify(summary, null, 2));
-  console.log('docs/summary.json atualizado.');
+  await upsert('app_settings', [{ key: 'summary_json', value: summary, updated_at: new Date().toISOString() }], 'key');
+  console.log('docs/summary.json e app_settings.summary_json atualizados.');
 }
 
 // Escreve as notícias semanais num ficheiro público (docs/news.json), para
@@ -298,7 +372,23 @@ async function writeNewsJson(weeklyNews){
   };
   await mkdir('docs', { recursive: true });
   await writeFile('docs/news.json', JSON.stringify(payload, null, 2));
-  console.log('docs/news.json atualizado.');
+  await upsert('app_settings', [{ key: 'news_json', value: payload, updated_at: new Date().toISOString() }], 'key');
+  await upsert('news_items', weeklyNews.flatMap(({ ticker, headlines }) => headlines.map(h => ({ ticker, title: h.title, link: h.link, fetched_at: new Date().toISOString() }))), 'ticker,link');
+  console.log('docs/news.json, app_settings.news_json e news_items atualizados.');
+}
+
+// Escreve um relatório diário só com factos (movimentos de preço fora do
+// normal) — sem qualquer avaliação de risco/oportunidade da minha parte.
+// A app decide como apresentar isto; o script só regista o que aconteceu.
+async function writeReportJson(bigMoves){
+  const payload = {
+    updatedAt: new Date().toISOString(),
+    bigMoves: bigMoves || []
+  };
+  await mkdir('docs', { recursive: true });
+  await writeFile('docs/report.json', JSON.stringify(payload, null, 2));
+  await upsert('app_settings', [{ key: 'report_json', value: payload, updated_at: new Date().toISOString() }], 'key');
+  console.log('docs/report.json e app_settings.report_json atualizados.');
 }
 
 // --- Main ---
@@ -308,6 +398,7 @@ try{
   await sendEmail(data);
   await writeSummaryJson(data);
   await writeNewsJson(weeklyNews);
+  await writeReportJson(data.bigMoves);
 }catch(err){
   console.error('Erro:', err.message);
   process.exit(1);
