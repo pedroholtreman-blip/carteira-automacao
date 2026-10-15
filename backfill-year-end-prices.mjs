@@ -62,6 +62,26 @@ for(let y = firstYear; y < currentYear; y++){
 }
 console.log(`Anos ${firstYear}–${currentYear - 1}: ${missing.size} tickers com fechos de fim de ano em falta.`);
 
+// --- 1b. Splits registados como lotes a custo zero (ex.: NVDA 10:1 em 2024) ---
+// O Yahoo devolve preços ajustados a splits posteriores; como esses splits
+// estão modelados na app como lotes extra a custo zero (as unidades antigas
+// não foram ajustadas), os preços ANTERIORES ao lote a custo zero têm de ser
+// "des-ajustados": multiplica-se pelo fator do split.
+const splitAdjust = new Map(); // ticker -> [{ date, factor }]
+const byTicker = new Map();
+tx.forEach(t => { const k = t.ticker.toUpperCase(); if(!byTicker.has(k)) byTicker.set(k, []); byTicker.get(k).push(t); });
+byTicker.forEach((lots, tk) => {
+  lots.filter(l => !(Number(l.buy_price) > 0) && l.buy_date).forEach(zc => {
+    const before = lots.filter(l => l.buy_date < zc.buy_date && (!l.sell_date || l.sell_date >= zc.buy_date)).reduce((s, l) => s + Number(l.units), 0);
+    if(before > 0){
+      const factor = (before + Number(zc.units)) / before;
+      if(factor > 1.5){ if(!splitAdjust.has(tk)) splitAdjust.set(tk, []); splitAdjust.get(tk).push({ date: zc.buy_date, factor: Math.round(factor * 100) / 100 }); }
+    }
+  });
+});
+splitAdjust.forEach((v, k) => console.log(`Split via lote a custo zero: ${k} ${v.map(x => `×${x.factor} antes de ${x.date}`).join(', ')}`));
+const unadjust = (ticker, date, price) => (splitAdjust.get(ticker) || []).reduce((p, sp) => date < sp.date ? p * sp.factor : p, price);
+
 // --- 2. Fontes ---
 async function yahooDaily(symbol, fromYear){
   const p1 = Math.floor(Date.UTC(fromYear, 0, 1) / 1000), p2 = Math.floor(Date.now() / 1000);
@@ -106,8 +126,9 @@ for(const [ticker, info] of missing){
       const inYear = series.filter(x => x.d.startsWith(String(y)) && x.d <= end);
       if(!inYear.length) return;
       const last = inYear[inYear.length - 1];
-      rows.push({ ticker, price_date: last.d, price: Math.round(last.p * 10000) / 10000, currency: info.currency, source: 'backfill' });
-      got.push(`${y}=${last.p.toFixed(2)}@${last.d}`);
+      const price = unadjust(ticker, last.d, last.p);
+      rows.push({ ticker, price_date: last.d, price: Math.round(price * 10000) / 10000, currency: info.currency, source: 'backfill' });
+      got.push(`${y}=${price.toFixed(2)}@${last.d}${price !== last.p ? '*' : ''}`);
     });
     const notFound = years.filter(y => !got.some(g => g.startsWith(`${y}=`)));
     console.log(`${ticker.padEnd(7)} ${source.padEnd(18)} ${got.join(' ')}${notFound.length ? `  (sem dados: ${notFound.join(',')})` : ''}`);
