@@ -1,0 +1,23 @@
+name: Backfill preços de fim de ano
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Só simular (1) ou gravar (0)"
+        default: "1"
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Preencher fechos de fim de ano em falta
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: node backfill-year-end-prices.mjs
