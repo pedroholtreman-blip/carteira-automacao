@@ -1,0 +1,25 @@
+name: Normalizar preços e splits
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Só simular (1) ou gravar (0)"
+        default: "1"
+  schedule:
+    - cron: '17 6 1 * *'   # dia 1 de cada mês, 06:17 UTC — mantém a base de splits consistente
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Normalizar price_snapshots e unit_factor dos lotes
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
+        run: node normalize-prices.mjs
