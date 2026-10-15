@@ -43,7 +43,7 @@ const iso = (d) => d.toISOString().slice(0, 10);
 const lastDayStr = (y) => `${y}-12-31`;
 
 // --- 1. O que falta: (ticker, ano) em carteira a 31/12 sem preço nesse ano ---
-const tx = await sbAll('transactions?select=ticker,currency,units,buy_date,sell_date');
+const tx = await sbAll('transactions?select=ticker,currency,units,buy_date,sell_date,buy_price');
 const snaps = await sbAll('price_snapshots?select=ticker,price_date');
 const haveYear = new Set(snaps.map(s => `${s.ticker.toUpperCase()}|${s.price_date.slice(0, 4)}`));
 const currentYear = new Date().getFullYear();
