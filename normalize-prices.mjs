@@ -38,11 +38,13 @@ const SYMBOLS = {
   'HKD':    { y: 'BABA',    s: 'baba.us' },
   'RMV':    { y: 'RMV.L',   s: 'rmv.uk', div: 100 },
   'VUSA':   { y: 'VUSA.AS', s: 'vusa.nl' },
-  'CSPX':   { y: 'CSPX.L',  s: 'cspx.uk' },
+  'CSPX':   { y: 'SXR8.DE', s: 'sxr8.de' },          // iShares Core S&P 500 em EUR (Xetra); CSPX.L cota em USD
   'IWDA':   { y: 'IWDA.AS', s: 'iwda.nl' },
   'IS3K':   { y: 'IS3K.DE' }, 'IS3C': { y: 'IS3C.DE' }, 'EXI2': { y: 'EXI2.DE' }, 'IBCD': { y: 'IBCD.DE' }, 'QDVY': { y: 'QDVY.DE' },
 };
 const SPLIT_RATIOS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 10, 15, 20, 25, 30, 40, 50];
+SPLIT_RATIOS.push(...SPLIT_RATIOS.filter(r => r > 1).map(r => 1 / r)); // reverse splits (ex.: LCID 1:10)
+const isCleanRatio = (r) => SPLIT_RATIOS.some(c => Math.abs(r / c - 1) <= 0.025);
 
 async function sb(method, path, body, prefer = 'return=minimal'){
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method, headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json', Prefer: prefer }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -56,7 +58,7 @@ const currentYear = new Date().getFullYear();
 
 async function yahooDaily(symbol, fromYear){
   const p1 = Math.floor(Date.UTC(fromYear, 0, 1) / 1000), p2 = Math.floor(Date.now() / 1000);
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?period1=${p1}&period2=${p2}&interval=1d&events=history`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?period1=${p1}&period2=${p2}&interval=1d&events=splits`;
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; carteira-automacao/1.0)', Accept: 'application/json' } });
   if(!res.ok) throw new Error(`Yahoo ${symbol} HTTP ${res.status}`);
   const j = await res.json();
@@ -65,6 +67,8 @@ async function yahooDaily(symbol, fromYear){
   const closes = r.indicators.quote[0].close;
   const out = [];
   r.timestamp.forEach((ts, i) => { if(closes[i] != null) out.push({ d: iso(new Date(ts * 1000)), p: closes[i] }); });
+  const splits = Object.values((r.events && r.events.splits) || {}).map(e => ({ d: iso(new Date(e.date * 1000)), ratio: Number(e.numerator) / Number(e.denominator) })).filter(e => e.ratio > 0 && e.ratio !== 1).sort((a, b) => a.d < b.d ? -1 : 1);
+  out.splits = splits;
   return out;
 }
 async function stooqDaily(symbol, fromYear){
@@ -78,7 +82,7 @@ async function dailySeries(ticker, fromYear){
   const errors = [];
   for(const [name, fn, sym] of [['Yahoo', yahooDaily, m.y], ['Stooq', stooqDaily, m.s]]){
     if(!sym) continue;
-    try{ const s = await fn(sym, fromYear); if(s.length){ return { series: s.map(x => ({ d: x.d, p: m.div ? x.p / m.div : x.p })), source: `${name} ${sym}` }; } }
+    try{ const s = await fn(sym, fromYear); if(s.length){ return { series: s.map(x => ({ d: x.d, p: m.div ? x.p / m.div : x.p })), splits: s.splits || [], source: `${name} ${sym}` }; } }
     catch(e){ errors.push(e.message); }
   }
   throw new Error(errors.join(' | '));
@@ -102,9 +106,19 @@ for(const ticker of tickers){
   const lots = tx.filter(t => t.ticker.toUpperCase() === ticker);
   const currency = (lots[0].currency || 'EUR').toUpperCase();
   const firstYear = Math.min(...lots.filter(l => l.buy_date).map(l => +l.buy_date.slice(0, 4)));
-  let series, source;
-  try{ ({ series, source } = await dailySeries(ticker, Math.max(2000, firstYear - 1))); }
+  let series, source, splits;
+  try{ ({ series, splits, source } = await dailySeries(ticker, Math.max(2000, firstYear - 1))); }
   catch(e){ failures.push(`${ticker}: ${e.message}`); console.log(`${ticker.padEnd(7)} FALHOU: ${e.message}`); continue; }
+
+  // Eventos do Yahoo que NÃO são splits "limpos" (ex.: YUM 1.355:1 pelo spin-off da YUMC)
+  // ajustam os preços antigos sem mexer nas unidades do acionista → desfaz-se esse
+  // ajustamento (preços antes do evento × rácio) e o evento não conta para o unit_factor.
+  const pseudo = splits.filter(sp => !isCleanRatio(sp.ratio));
+  const realSplits = splits.filter(sp => isCleanRatio(sp.ratio));
+  if(pseudo.length){
+    series = series.map(x => ({ d: x.d, p: pseudo.reduce((p, sp) => x.d < sp.d ? p * sp.ratio : p, x.p) }));
+  }
+  const splitsInfo = realSplits.map(sp => `${sp.d.slice(0, 7)} ${sp.ratio >= 1 ? `${+sp.ratio.toFixed(3)}:1` : `1:${+(1 / sp.ratio).toFixed(3)}`}`).concat(pseudo.map(sp => `${sp.d.slice(0, 7)} ~${sp.ratio.toFixed(3)} (spin-off, desfeito)`));
 
   // 1. reescreve snapshots guardados para a base ajustada de hoje
   let changed = 0;
@@ -139,18 +153,27 @@ for(const ticker of tickers){
       if(!adj){ f = 1; }
       else {
         const raw = Number(l.buy_price) / adj.p;
-        // rácio de split mais próximo (tolerância 12%: o preço de compra não é o fecho do dia)
-        let best = 1, bestErr = Infinity;
-        SPLIT_RATIOS.forEach(r => { const err = Math.abs(raw / r - 1); if(err < bestErr){ bestErr = err; best = r; } });
-        f = bestErr <= 0.12 ? best : 1;
-        if(bestErr > 0.12) factors.push(`?${l.buy_date}:${raw.toFixed(2)}`);
+        // fator esperado = produto dos splits ocorridos depois da compra (e até à venda, se vendido)
+        const until = l.sell_date || '9999-12-31';
+        const expected = realSplits.filter(sp => sp.d > l.buy_date && sp.d <= until).reduce((p, sp) => p * sp.ratio, 1);
+        const near = (a, b, tol) => Math.abs(a / b - 1) <= tol; // tolerância: o preço de compra não é o fecho do dia
+        if(near(raw, expected, 0.12)) f = expected;            // unidades "da altura" (não ajustadas)
+        else if(near(raw, 1, 0.12)) f = 1;                     // unidades e preço já ajustados pelo utilizador
+        else {
+          // sem evento no Yahoo mas preço claramente noutra base: rácio limpo mais próximo (tolerância apertada)
+          let best = 1, bestErr = Infinity;
+          SPLIT_RATIOS.forEach(r => { const err = Math.abs(raw / r - 1); if(err < bestErr){ bestErr = err; best = r; } });
+          f = bestErr <= 0.05 ? best : 1;
+          if(f === 1) factors.push(`?${l.buy_date}:${raw.toFixed(2)}`);
+        }
+        f = Math.round(f * 10000) / 10000;
       }
     }
     if(Number(l.unit_factor ?? 1) !== f) lotUpdates.push({ id: l.id, unit_factor: f, ticker, buy_date: l.buy_date });
     factors.push(`${f}`);
   });
   const ends = [firstYear, currentYear - 1].map(yr => { const p = priceAt(series, `${yr}-12-31`); return p ? `${yr}=${p.p.toFixed(2)}` : `${yr}=–`; });
-  console.log(`${ticker.padEnd(7)} ${source.padEnd(16)} snapshots reescritos: ${String(changed).padStart(3)} | fatores: ${[...new Set(factors)].join(',')} | ${ends.join(' ')}`);
+  console.log(`${ticker.padEnd(7)} ${source.padEnd(16)} snapshots reescritos: ${String(changed).padStart(3)} | fatores: ${[...new Set(factors)].join(',')} | ${ends.join(' ')}${splitsInfo.length ? ` | splits: ${splitsInfo.join('; ')}` : ''}`);
   await new Promise(r => setTimeout(r, 350));
 }
 
