@@ -42,7 +42,7 @@ const SYMBOLS = {
   'IWDA':   { y: 'IWDA.AS', s: 'iwda.nl' },
   'IS3K':   { y: 'IS3K.DE' }, 'IS3C': { y: 'IS3C.DE' }, 'EXI2': { y: 'EXI2.DE' }, 'IBCD': { y: 'IBCD.DE' }, 'QDVY': { y: 'QDVY.DE' },
 };
-const SPLIT_RATIOS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 10, 15, 20, 25, 30, 40, 50];
+const SPLIT_RATIOS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 10, 15, 20, 25, 30, 40, 50, 75, 100];
 SPLIT_RATIOS.push(...SPLIT_RATIOS.filter(r => r > 1).map(r => 1 / r)); // reverse splits (ex.: LCID 1:10)
 const isCleanRatio = (r) => SPLIT_RATIOS.some(c => Math.abs(r / c - 1) <= 0.025);
 
@@ -153,19 +153,19 @@ for(const ticker of tickers){
       if(!adj){ f = 1; }
       else {
         const raw = Number(l.buy_price) / adj.p;
-        // fator esperado = produto dos splits ocorridos depois da compra (e até à venda, se vendido)
-        const until = l.sell_date || '9999-12-31';
-        const expected = realSplits.filter(sp => sp.d > l.buy_date && sp.d <= until).reduce((p, sp) => p * sp.ratio, 1);
-        const near = (a, b, tol) => Math.abs(a / b - 1) <= tol; // tolerância: o preço de compra não é o fecho do dia
-        if(near(raw, expected, 0.12)) f = expected;            // unidades "da altura" (não ajustadas)
-        else if(near(raw, 1, 0.12)) f = 1;                     // unidades e preço já ajustados pelo utilizador
-        else {
-          // sem evento no Yahoo mas preço claramente noutra base: rácio limpo mais próximo (tolerância apertada)
-          let best = 1, bestErr = Infinity;
-          SPLIT_RATIOS.forEach(r => { const err = Math.abs(raw / r - 1); if(err < bestErr){ bestErr = err; best = r; } });
-          f = bestErr <= 0.05 ? best : 1;
-          if(f === 1) factors.push(`?${l.buy_date}:${raw.toFixed(2)}`);
-        }
+        // Splits (eventos do Yahoo) ocorridos depois da compra — incluindo depois da venda, porque o Yahoo
+        // ajusta toda a série aos splits posteriores (ex.: NOW vendida em 2023, split 5:1 em 2025). O utilizador pode ter
+        // ajustado alguns deles "à mão" (unidades × n, preço ÷ n) e outros não (ex.: NVDA: o 4:1 de 2021
+        // foi ajustado, o 10:1 de 2024 ficou como lote a custo zero), por isso o fator pode ser o produto
+        // de QUALQUER subconjunto desses splits — escolhe-se o subconjunto cujo produto bate com o rácio
+        // observado (tolerância 12%: o preço de compra não é o fecho do dia). Sem correspondência → 1 e "?".
+        // Nunca se inventa um fator a partir do rácio sozinho (ex.: COF a 46 $ de custo herdado da DFS ≠ split).
+        const after = realSplits.filter(sp => sp.d > l.buy_date).map(sp => sp.ratio);
+        const candidates = after.reduce((acc, r) => acc.concat(acc.map(p => p * r)), [1]); // produtos de todos os subconjuntos
+        let best = null, bestErr = Infinity;
+        candidates.forEach(c => { const err = Math.abs(raw / c - 1); if(err < bestErr){ bestErr = err; best = c; } });
+        if(bestErr <= 0.12) f = best;
+        else { f = 1; factors.push(`?${l.buy_date}:${raw.toFixed(2)}`); }
         f = Math.round(f * 10000) / 10000;
       }
     }
