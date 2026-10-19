@@ -1,17 +1,4 @@
 {
-  "updatedAt": "2026-10-16T20:37:26.274Z",
-  "bigMoves": [
-    {
-      "ticker": "SMCI",
-      "changePct": -9.86
-    },
-    {
-      "ticker": "TTD",
-      "changePct": -6.85
-    },
-    {
-      "ticker": "AMD",
-      "changePct": -5.95
-    }
-  ]
+  "updatedAt": "2026-10-19T20:37:25.890Z",
+  "bigMoves": []
 }
