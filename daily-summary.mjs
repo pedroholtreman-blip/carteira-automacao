@@ -2,7 +2,8 @@
 // Corre via GitHub Actions (disparado pelo cron-job.org aos dias úteis, ao
 // fecho do mercado americano). O que faz:
 //   1. lê as posições abertas da base de dados (Supabase);
-//   2. lê as cotações do dia da folha GOOGLEFINANCE (só TICKER + CURRENT/PREVIOUS PRICE);
+//   2. lê as cotações do dia no Yahoo Finance (fecho e fecho anterior por ticker);
+//      a folha GOOGLEFINANCE só é usada se USE_SHEET=1;
 //   3. grava as cotações do dia em price_snapshots (histórico diário) e o câmbio em fx_rates;
 //   4. calcula a variação do dia, movimentos ≥5% e (às segundas) notícias;
 //   5. grava tudo em app_settings (summary_json, report_json, news_json) + news_items,
@@ -11,7 +12,8 @@
 // Variáveis de ambiente (GitHub Secrets):
 //   SUPABASE_URL               - https://xxxx.supabase.co
 //   SUPABASE_SERVICE_ROLE_KEY  - service role key (só aqui, nunca na app)
-//   SHEET_ID / SHEET_GID       - folha com as cotações (GOOGLEFINANCE)
+//   SHEET_ID / SHEET_GID       - (opcional, só com USE_SHEET=1) folha com as cotações GOOGLEFINANCE
+//   PRICES_ONLY=1              - execução intradiária: grava cotações + resumo, sem email
 //   RESEND_API_KEY, EMAIL_TO, EMAIL_FROM
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -79,7 +81,9 @@ if(!isWeekday){
   console.log(`Hoje é ${nyWeekday} em Nova Iorque — mercado fechado, não envio email.`);
   process.exit(0);
 }
-if(nyHour !== 16){
+// PRICES_ONLY=1: execução intradiária — só grava cotações e o resumo (sem email, notícias ou relatório).
+const PRICES_ONLY = process.env.PRICES_ONLY === '1';
+if(!PRICES_ONLY && nyHour !== 16){
   console.log(`São ${nyHour}h em Nova Iorque, não são 16h — esta execução não envia (a outra, ajustada ao horário de verão/inverno, é que envia hoje).`);
   process.exit(0);
 }
@@ -131,10 +135,46 @@ async function fetchUsdEurRate(){
   return rate;
 }
 
+// --- 2b. Recurso: cotações do Yahoo Finance (quando a folha falha ou lhe faltam tickers) ---
+// Símbolos para tickers não-US (mesma tabela do normalize-prices.mjs); div = pence → libras
+const YAHOO_SYMBOLS = {
+  'BCP': { y: 'BCP.LS' }, 'BPI': { y: 'BPI.LS' }, 'IFX': { y: 'IFX.DE' }, 'NOVO-B': { y: 'NOV.DE' }, 'ABI': { y: 'ABI.BR' },
+  'HKD': { y: 'BABA' }, 'RMV': { y: 'RMV.L', div: 100 }, 'VUSA': { y: 'VUSA.AS' }, 'CSPX': { y: 'SXR8.DE' }, 'IWDA': { y: 'IWDA.AS' },
+  'IS3K': { y: 'IS3K.DE' }, 'IS3C': { y: 'IS3C.DE' }, 'EXI2': { y: 'EXI2.DE' }, 'IBCD': { y: 'IBCD.DE' }, 'QDVY': { y: 'QDVY.DE' },
+};
+async function fetchYahooQuote(ticker){
+  const m = YAHOO_SYMBOLS[ticker] || { y: ticker };
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.y)}?range=10d&interval=1d`;
+  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; carteira-automacao/1.0)', Accept: 'application/json' } });
+  if(!res.ok) throw new Error(`HTTP ${res.status}`);
+  const j = await res.json();
+  const r = j && j.chart && j.chart.result && j.chart.result[0];
+  if(!r || !r.timestamp) throw new Error('sem dados');
+  const closes = r.indicators.quote[0].close.map((c, i) => ({ c, t: r.timestamp[i] })).filter(x => x.c != null);
+  if(!closes.length) throw new Error('sem fechos');
+  const div = m.div || 1;
+  const current = closes[closes.length - 1].c / div;
+  const previous = closes.length > 1 ? closes[closes.length - 2].c / div : null;
+  return { current, previous };
+}
+async function fetchYahooQuotes(tickers){
+  const out = new Map(); const failed = [];
+  for(const t of tickers){
+    try{ out.set(t, await fetchYahooQuote(t)); }
+    catch(e){ failed.push(`${t} (${e.message})`); }
+    await new Promise(r => setTimeout(r, 250));
+  }
+  console.log(`Cotações do Yahoo: ${out.size} tickers${failed.length ? `; sem dados: ${failed.join(', ')}` : ''}.`);
+  return out;
+}
+
 // --- 3. Posições da base de dados + cotações do dia; grava o histórico ---
 async function fetchPriceFeed(){
-  // Map ticker -> { current, previous } a partir da folha GOOGLEFINANCE
+  // Map ticker -> { current, previous } a partir da folha GOOGLEFINANCE.
+  // Desde 2026-10 a fonte principal é o Yahoo Finance (ver computeDailyChange);
+  // a folha só é lida se USE_SHEET=1 (recurso manual).
   const out = new Map();
+  if(process.env.USE_SHEET !== '1') return out;
   try{
     const rows = await fetchSheet();
     const norm = (x) => (x || '').toString().replace(/\s+/g, '').toUpperCase();
@@ -166,6 +206,15 @@ async function computeDailyChange(){
 
   // Últimos dois snapshots por ticker (para "ontem" e como recurso quando a folha falha)
   const tickers = [...new Set(positions.map(p => p.ticker.toUpperCase()))];
+
+  // Fonte principal das cotações: Yahoo Finance (independente da Google Sheet).
+  const toFetch = tickers.filter(t => !feed.has(t));
+  if(toFetch.length){
+    const y = await fetchYahooQuotes(toFetch);
+    y.forEach((v, t) => feed.set(t, v));
+  }
+  const semCotacao = tickers.filter(t => !feed.has(t));
+  if(semCotacao.length) console.warn(`Sem cotação de hoje para: ${semCotacao.join(', ')} — fica o último fecho guardado.`);
   const snaps = await sbAll(`price_snapshots?select=ticker,price_date,price&ticker=in.(${tickers.map(t => `"${t}"`).join(',')})&order=price_date.asc`);
   const hist = new Map();
   snaps.forEach(s => { const t = s.ticker.toUpperCase(); if(!hist.has(t)) hist.set(t, []); hist.get(t).push({ d: s.price_date, p: Number(s.price) }); });
@@ -394,11 +443,16 @@ async function writeReportJson(bigMoves){
 // --- Main ---
 try{
   const data = await computeDailyChange();
-  const weeklyNews = await fetchWeeklyNews(data.topTickers);
-  await sendEmail(data);
-  await writeSummaryJson(data);
-  await writeNewsJson(weeklyNews);
-  await writeReportJson(data.bigMoves);
+  if(PRICES_ONLY){
+    await writeSummaryJson(data);
+    console.log('PRICES_ONLY=1 — cotações e resumo gravados; sem email.');
+  } else {
+    const weeklyNews = await fetchWeeklyNews(data.topTickers);
+    await sendEmail(data);
+    await writeSummaryJson(data);
+    await writeNewsJson(weeklyNews);
+    await writeReportJson(data.bigMoves);
+  }
 }catch(err){
   console.error('Erro:', err.message);
   process.exit(1);
