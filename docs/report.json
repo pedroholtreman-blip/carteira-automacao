@@ -1,9 +1,33 @@
 {
-  "updatedAt": "2026-10-21T20:37:38.187Z",
+  "updatedAt": "2026-10-22T20:37:36.069Z",
   "bigMoves": [
     {
+      "ticker": "AMD",
+      "changePct": -8.1
+    },
+    {
+      "ticker": "META",
+      "changePct": -6.98
+    },
+    {
+      "ticker": "HUBS",
+      "changePct": 6.92
+    },
+    {
+      "ticker": "SOXX",
+      "changePct": -6.79
+    },
+    {
+      "ticker": "TSCO",
+      "changePct": 6.24
+    },
+    {
+      "ticker": "ADBE",
+      "changePct": 6.07
+    },
+    {
       "ticker": "SMCI",
-      "changePct": 9.55
+      "changePct": -5.2
     }
   ]
 }
