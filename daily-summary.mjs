@@ -141,6 +141,9 @@ const YAHOO_SYMBOLS = {
   'BCP': { y: 'BCP.LS' }, 'BPI': { y: 'BPI.LS' }, 'IFX': { y: 'IFX.DE' }, 'NOVO-B': { y: 'NOV.DE' }, 'ABI': { y: 'ABI.BR' },
   'HKD': { y: 'BABA' }, 'RMV': { y: 'RMV.L', div: 100 }, 'VUSA': { y: 'VUSA.AS' }, 'CSPX': { y: 'SXR8.DE' }, 'IWDA': { y: 'IWDA.AS' },
   'IS3K': { y: 'IS3K.DE' }, 'IS3C': { y: 'IS3C.DE' }, 'EXI2': { y: 'EXI2.DE' }, 'IBCD': { y: 'IBCD.DE' }, 'QDVY': { y: 'QDVY.DE' },
+  // Plano de 29/10/2026: títulos europeus (o ticker simples no Yahoo seria o ADR americano)
+  'SAN': { y: 'SAN.PA' }, 'TTE': { y: 'TTE.PA' }, 'EXHB': { y: 'EXHB.DE' }, '4GLD': { y: '4GLD.DE' }, 'EXVM': { y: 'EXVM.DE' },
+  'VHYL': { y: 'VHYL.AS' }, 'SPYW': { y: 'SPYW.DE' }, 'IBE': { y: 'IBE.MC' }, 'SU': { y: 'SU.PA' },
 };
 async function fetchYahooQuote(ticker){
   const m = YAHOO_SYMBOLS[ticker] || { y: ticker };
