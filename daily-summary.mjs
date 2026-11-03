@@ -144,6 +144,8 @@ const YAHOO_SYMBOLS = {
   // Plano de 29/10/2026: títulos europeus (o ticker simples no Yahoo seria o ADR americano)
   'SAN': { y: 'SAN.PA' }, 'TTE': { y: 'TTE.PA' }, 'EXHB': { y: 'EXHB.DE' }, '4GLD': { y: '4GLD.DE' }, 'EXVM': { y: 'EXVM.DE' },
   'VHYL': { y: 'VHYL.AS' }, 'SPYW': { y: 'SPYW.DE' }, 'IBE': { y: 'IBE.MC' }, 'SU': { y: 'SU.PA' },
+  // Amundi Physical Gold ETC C (FR0013416716), Xetra; "GOLD" simples no Yahoo seria a Barrick Gold
+  'GLDA': { y: 'GLDA.DE' }, 'GOLD': { y: 'GLDA.DE' },
 };
 async function fetchYahooQuote(ticker){
   const m = YAHOO_SYMBOLS[ticker] || { y: ticker };
