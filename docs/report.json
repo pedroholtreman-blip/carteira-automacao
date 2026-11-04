@@ -1,13 +1,49 @@
 {
-  "updatedAt": "2026-11-03T21:37:48.070Z",
+  "updatedAt": "2026-11-04T21:37:38.797Z",
   "bigMoves": [
     {
-      "ticker": "ZBRA",
-      "changePct": -8.76
+      "ticker": "XYZ",
+      "changePct": 15.3
+    },
+    {
+      "ticker": "BKNG",
+      "changePct": 9.83
     },
     {
       "ticker": "SHOP",
-      "changePct": -8.74
+      "changePct": 7.34
+    },
+    {
+      "ticker": "ADSK",
+      "changePct": 7.04
+    },
+    {
+      "ticker": "MSFT",
+      "changePct": 6.68
+    },
+    {
+      "ticker": "GRMN",
+      "changePct": 6.52
+    },
+    {
+      "ticker": "AMZN",
+      "changePct": 6.12
+    },
+    {
+      "ticker": "SMCI",
+      "changePct": -5.7
+    },
+    {
+      "ticker": "ABT",
+      "changePct": 5.59
+    },
+    {
+      "ticker": "AAPL",
+      "changePct": 5.31
+    },
+    {
+      "ticker": "NKE",
+      "changePct": 5.22
     }
   ]
 }
