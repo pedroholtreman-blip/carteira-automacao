@@ -1,13 +1,33 @@
 {
-  "updatedAt": "2026-11-06T21:37:41.704Z",
+  "updatedAt": "2026-11-09T21:37:44.261Z",
   "bigMoves": [
     {
-      "ticker": "AMD",
-      "changePct": 11.04
+      "ticker": "TTD",
+      "changePct": 15.47
     },
     {
-      "ticker": "SMCI",
-      "changePct": 6.2
+      "ticker": "AMD",
+      "changePct": 13.26
+    },
+    {
+      "ticker": "AVGO",
+      "changePct": 8.78
+    },
+    {
+      "ticker": "SOXX",
+      "changePct": 7.49
+    },
+    {
+      "ticker": "URI",
+      "changePct": 6.88
+    },
+    {
+      "ticker": "TSLA",
+      "changePct": 5.54
+    },
+    {
+      "ticker": "META",
+      "changePct": 5.12
     }
   ]
 }
