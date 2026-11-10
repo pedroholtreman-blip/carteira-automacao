@@ -1,33 +1,9 @@
 {
-  "updatedAt": "2026-11-09T21:37:44.261Z",
+  "updatedAt": "2026-11-10T21:37:42.198Z",
   "bigMoves": [
     {
-      "ticker": "TTD",
-      "changePct": 15.47
-    },
-    {
-      "ticker": "AMD",
-      "changePct": 13.26
-    },
-    {
-      "ticker": "AVGO",
-      "changePct": 8.78
-    },
-    {
-      "ticker": "SOXX",
-      "changePct": 7.49
-    },
-    {
-      "ticker": "URI",
-      "changePct": 6.88
-    },
-    {
-      "ticker": "TSLA",
-      "changePct": 5.54
-    },
-    {
-      "ticker": "META",
-      "changePct": 5.12
+      "ticker": "NVDA",
+      "changePct": -5.47
     }
   ]
 }
