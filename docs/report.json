@@ -1,21 +1,9 @@
 {
-  "updatedAt": "2026-11-16T21:37:37.487Z",
+  "updatedAt": "2026-11-17T21:37:37.702Z",
   "bigMoves": [
     {
-      "ticker": "SMCI",
-      "changePct": -6.87
-    },
-    {
-      "ticker": "AMD",
-      "changePct": -5.58
-    },
-    {
-      "ticker": "TTD",
+      "ticker": "UNH",
       "changePct": -5.42
-    },
-    {
-      "ticker": "SOXX",
-      "changePct": -5.41
     }
   ]
 }
