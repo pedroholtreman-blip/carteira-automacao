@@ -1,9 +1,13 @@
 {
-  "updatedAt": "2026-11-17T21:37:37.702Z",
+  "updatedAt": "2026-11-18T21:37:39.523Z",
   "bigMoves": [
     {
       "ticker": "UNH",
-      "changePct": -5.42
+      "changePct": -10.21
+    },
+    {
+      "ticker": "AMD",
+      "changePct": 5.31
     }
   ]
 }
