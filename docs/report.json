@@ -1,57 +1,53 @@
 {
-  "updatedAt": "2026-11-20T21:37:37.100Z",
+  "updatedAt": "2026-11-23T21:37:39.860Z",
   "bigMoves": [
     {
       "ticker": "NVDA",
-      "changePct": -14.01
-    },
-    {
-      "ticker": "AMD",
-      "changePct": -13.25
-    },
-    {
-      "ticker": "AVGO",
-      "changePct": -12.19
+      "changePct": 31.48
     },
     {
       "ticker": "SOXX",
-      "changePct": -10.55
+      "changePct": 13.63
     },
     {
       "ticker": "SMCI",
-      "changePct": -9.19
-    },
-    {
-      "ticker": "URI",
-      "changePct": -8.13
-    },
-    {
-      "ticker": "TTD",
-      "changePct": -8.1
+      "changePct": 13.3
     },
     {
       "ticker": "TSLA",
-      "changePct": -7.64
+      "changePct": 11.46
     },
     {
       "ticker": "SHOP",
-      "changePct": -6.25
+      "changePct": 8.55
     },
     {
-      "ticker": "XYZ",
-      "changePct": -6.16
+      "ticker": "URI",
+      "changePct": 6.91
+    },
+    {
+      "ticker": "AMD",
+      "changePct": 6.85
     },
     {
       "ticker": "META",
-      "changePct": -5.93
+      "changePct": 6.55
     },
     {
       "ticker": "JEPQ",
-      "changePct": -5.2
+      "changePct": 6.27
     },
     {
-      "ticker": "SE",
-      "changePct": -5.02
+      "ticker": "GOOG",
+      "changePct": 5.88
+    },
+    {
+      "ticker": "XYZ",
+      "changePct": 5.14
+    },
+    {
+      "ticker": "TTD",
+      "changePct": 5.08
     }
   ]
 }
