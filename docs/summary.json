@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-11-24T21:37:39.244Z",
-  "totalToday": 6241392.1,
-  "changeValue": 18910.59,
-  "changePct": 0.3,
+  "updatedAt": "2026-11-25T21:37:34.405Z",
+  "totalToday": 6243800.07,
+  "changeValue": -11711.49,
+  "changePct": -0.19,
   "currency": "EUR",
-  "totalTodayFormatted": "€6 241 392,10",
-  "changeValueFormatted": "+€18 910,59",
-  "changePctFormatted": "+0,30%"
+  "totalTodayFormatted": "€6 243 800,07",
+  "changeValueFormatted": "-€11 711,49",
+  "changePctFormatted": "-0,19%"
 }
